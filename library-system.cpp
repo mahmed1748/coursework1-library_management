@@ -10,6 +10,8 @@
 // testing git because error when push
 // now works well
 using namespace std;
+
+// Class representing a date
 class Date
 {
 private:
@@ -18,10 +20,14 @@ private:
     int year;
 
 public:
+    // Constructors
+
     Date() : day(0), month(0), year(0) {}
 
     Date(int dd, int mm, int yyyy)
         : day(dd), month(mm), year(yyyy) {}
+
+    // Function to set due date (increment by 3 days)
 
     void setDueDate()
     {
@@ -38,6 +44,8 @@ public:
         }
     }
 
+    // Getter for the year
+
     int getYear() const
     {
         return year;
@@ -45,6 +53,9 @@ public:
 };
 
 class Member;
+
+// Class representing a book
+
 class Book
 {
 private:
@@ -54,12 +65,16 @@ private:
     Member *borrower;
 
 public:
+    // Constructors
+
     Book(int id, string name, string firstName, string lastName)
         : bookID(id), bookName(name), authorFirstName(firstName),
           authorLastName(lastName), borrower(nullptr), dueDate(0, 0, 0) {}
     Book()
         : bookID(0), bookName(""), authorFirstName(""),
           authorLastName(""), borrower(nullptr), dueDate(0, 0, 0) {}
+
+    // Getter functions for book attributes
 
     int getBookID() const
     {
@@ -86,15 +101,23 @@ public:
         return dueDate;
     }
 
+    // Function to set due date for borrowing
+
     void setDueDate()
     {
         dueDate.setDueDate();
     }
 
+    // Function to return a book
+
     void returnBook();
+
+    // Function to borrow a book by a member
 
     void borrowBook(Member &member);
 };
+
+// Class representing a person
 
 class Person
 {
@@ -102,10 +125,14 @@ private:
     string name, address, email;
 
 public:
+    // Constructors
+
     Person() {}
 
     Person(string n, string addr, string e)
         : name(n), address(addr), email(e) {}
+
+    // Getter functions for person attributes
 
     string getName() const
     {
@@ -121,6 +148,8 @@ public:
     {
         return email;
     }
+
+    // Setter functions for person attributes
 
     void setName(string n)
     {
@@ -138,6 +167,8 @@ public:
     }
 };
 
+// Class representing a library member, inheriting from Person
+
 class Member : public Person
 {
 private:
@@ -145,8 +176,12 @@ private:
     vector<Book> booksBorrowed;
 
 public:
+    // Constructor
+
     Member(int id, string n, string addr, string e)
         : memberID(id), Person(n, addr, e) {}
+
+    // Getter functions for member attributes
 
     int getMemberID() const
     {
@@ -158,11 +193,15 @@ public:
         return booksBorrowed;
     }
 
+    // Function to set books borrowed by a member
+
     void setBooksBorrowed(const Book &book)
     {
         booksBorrowed.push_back(book);
     }
 };
+
+// Class representing a librarian, inheriting from Person
 
 class Librarian : public Person
 {
@@ -172,8 +211,12 @@ private:
     std::vector<Book> books;
 
 public:
+    // Constructor
+
     Librarian(int id, int sal, string n, string addr, string e)
         : staffID(id), salary(sal), Person(n, addr, e) {}
+
+    // Getter functions for librarian attributes
 
     int getStaffID() const
     {
@@ -185,6 +228,8 @@ public:
         return salary;
     }
 
+    // Setter functions for librarian attributes
+
     void setStaffID(int id)
     {
         staffID = id;
@@ -194,6 +239,9 @@ public:
     {
         salary = sal;
     }
+
+    // Function to read books data from a CSV file
+
     void readBooksFromCSV(const std::string &filename)
     {
         std::ifstream fin(filename);
@@ -215,6 +263,9 @@ public:
 
         fin.close();
     }
+
+    // Getter functions for books and members
+
     const std::vector<Book> &getBooks() const
     {
         return books;
@@ -224,21 +275,30 @@ public:
         return members;
     }
 
+    // Function to create a new library member
     void createMember();
 
+    // Function to issue a book to a library member
     void issueBookToMember(int bookID, int memberId);
 
+    // Function to return a book from a library member
     void returnBookFromMember(Book &book, Member &member);
 
+    // Function to display books borrowed by a member
     void displayBorrowedBooks();
 
+    // Function to calculate fine for a member
     void calculateFine(const Member &member);
 };
+
+// Function to return a book
 
 void Book::returnBook()
 {
     borrower = nullptr;
 }
+
+// Function to borrow a book by a member
 
 void Book::borrowBook(Member &member)
 {
@@ -246,6 +306,9 @@ void Book::borrowBook(Member &member)
     setDueDate();
     member.setBooksBorrowed(*this);
 }
+
+// Function to create a new library member
+
 void Librarian::createMember()
 {
     int memberId;
@@ -274,54 +337,66 @@ void Librarian::createMember()
     std::cout << "Address: " << newMember.getAddress() << std::endl;
     std::cout << "Email: " << newMember.getEmail() << std::endl;
 }
+
+// Function to issue a book to a library member
+
 void Librarian::issueBookToMember(int bookID, int memberId)
 {
-    auto bookIt = std::find_if(books.begin(), books.end(), [bookID](const Book &b)
-                               { return b.getBookID() == bookID; });
+    // Find the book by ID
+    auto bookIter = std::find_if(books.begin(), books.end(),
+                                 [bookID](const Book &book)
+                                 { return book.getBookID() == bookID; });
 
-    if (bookIt != books.end())
+    // Find the member by ID
+    auto memberIter = std::find_if(members.begin(), members.end(),
+                                   [memberId](const Member &member)
+                                   { return member.getMemberID() == memberId; });
+
+    // Check if both book and member exist
+    if (bookIter != books.end() && memberIter != members.end())
     {
-        Book &book = *bookIt;
-
-        if (book.getDueDate().getYear() != 0)
+        // Check if the book is available
+        if (bookIter->getDueDate().getYear() == 0)
         {
-            std::cout << "Book is already issued.\n";
-            return;
-        }
-
-        auto memberIt = std::find_if(members.begin(), members.end(), [memberId](const Member &m)
-                                     { return m.getMemberID() == memberId; });
-
-        if (memberIt != members.end())
-        {
-            Member &member = *memberIt;
-            std::cout << "Issuing book '" << book.getBookName() << "' to Member '" << member.getName() << "'.\n";
-            book.borrowBook(member);
-            std::cout << "Book Issued Successfully!\n";
+            // Borrow the book
+            bookIter->borrowBook(*memberIter);
+            std::cout << "Book issued successfully to Member ID " << memberId << ".\n";
         }
         else
         {
-            std::cout << "Member with ID " << memberId << " not found.\n";
+            std::cout << "Book is already borrowed.\n";
         }
     }
     else
     {
-        std::cout << "Book with ID " << bookID << " not found.\n";
+        std::cout << "Book or Member not found.\n";
     }
 }
+
+// Function to return a book from a library member
 
 void Librarian::returnBookFromMember(Book &book, Member &member)
 {
-    if (book.getDueDate().getYear() == 0 || book.getDueDate().getYear() > 0)
-    {
-        cout << "Book is not issued or already returned.\n";
-        return;
-    }
+    // Check if the book is borrowed by the given member
+    auto iter = std::find_if(member.getBooksBorrowed().begin(), member.getBooksBorrowed().end(),
+                             [&book](const Book &borrowedBook)
+                             { return borrowedBook.getBookID() == book.getBookID(); });
 
-    cout << "Returning book '" << book.getBookName() << "' from Member '" << member.getName() << "'.\n";
-    book.returnBook();
-    cout << "Book Returned Successfully!\n";
+    if (iter != member.getBooksBorrowed().end())
+    {
+        // Return the book
+        book.returnBook();
+        member.getBooksBorrowed().erase(iter);
+        std::cout << "Book returned successfully by Member ID " << member.getMemberID() << ".\n";
+    }
+    else
+    {
+        std::cout << "Member did not borrow this book.\n";
+    }
 }
+
+// Function to display books borrowed by a member
+
 void Librarian::displayBorrowedBooks()
 {
     int memberId;
@@ -354,6 +429,7 @@ void Librarian::displayBorrowedBooks()
         std::cout << "Member with ID " << memberId << " not found.\n";
     }
 }
+// Function to calculate fine for a member
 
 void Librarian::calculateFine(const Member &member)
 {
@@ -377,8 +453,10 @@ void Librarian::calculateFine(const Member &member)
 
 int main()
 {
+    // instance of a librarian
     Librarian librarian(1, 50000, "John Librarian", "Library St", "john.librarian@example.com");
 
+    // Menu
     while (true)
     {
         cout << "LIBRARY MANAGEMENT SYSTEM\n\n";
@@ -495,3 +573,4 @@ int main()
 
     return 0;
 }
+// end
