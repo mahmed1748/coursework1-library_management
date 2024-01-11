@@ -1,8 +1,9 @@
 CXX = g++
-CXXFLAGS = -std=c++11
-SRC = main.cpp
+CXXFLAGS = -std=c++11 -Wall
+
+SRC = library-system.cpp
 OBJ = $(SRC:.cpp=.o)
-EXEC = library_management_system
+EXEC = library-system
 
 all: $(EXEC)
 
