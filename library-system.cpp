@@ -204,7 +204,6 @@ public:
             return;
         }
 
-        // Assuming CSV structure: BookID,BookName,Author,Owner
         int bookID;
         std::string bookName, author, owner;
 
@@ -227,7 +226,7 @@ public:
 
     void createMember();
 
-    void issueBookToMember(int bookID, int memberId); // Updated declaration
+    void issueBookToMember(int bookID, int memberId);
 
     void returnBookFromMember(Book &book, Member &member);
 
@@ -267,7 +266,6 @@ void Librarian::createMember()
 
     Member newMember(memberId, name, address, email);
 
-    // Store the created member in the vector
     this->members.push_back(newMember);
 
     std::cout << "\nNew Member Created Successfully:\n";
@@ -326,12 +324,10 @@ void Librarian::returnBookFromMember(Book &book, Member &member)
 }
 void Librarian::displayBorrowedBooks()
 {
-    // Prompt the user to enter the Member ID
     int memberId;
     std::cout << "Enter Member ID to display borrowed books: ";
     std::cin >> memberId;
 
-    // Find the member with the entered ID in the vector
     auto it = std::find_if(members.begin(), members.end(), [memberId](const Member &m)
                            { return m.getMemberID() == memberId; });
 
@@ -367,14 +363,12 @@ void Librarian::calculateFine(const Member &member)
 
     for (const Book &book : borrowedBooks)
     {
-        // Calculate the difference in days between the current date and the due date
         int daysDifference = currentDate.getYear() - book.getDueDate().getYear();
 
-        // Check if the book is overdue (excluding the 3 days grace period)
         if (daysDifference > 3)
         {
             int daysOverdue = daysDifference - 3;
-            int fineAmount = daysOverdue * 1; // 1£ fine for each additional day
+            int fineAmount = daysOverdue * 1;
 
             cout << "Fine for Book '" << book.getBookName() << "': £" << fineAmount << endl;
         }
@@ -406,24 +400,20 @@ int main()
 
         case 2:
         {
-            // Assuming books are already available (read from "library_books.csv")
             const std::vector<Book> &allBooks = librarian.getBooks();
 
             if (!allBooks.empty())
             {
-                // Display available books
                 std::cout << "Available Books:\n";
                 for (const Book &book : allBooks)
                 {
                     std::cout << "Book ID: " << book.getBookID() << ", Title: " << book.getBookName() << std::endl;
                 }
 
-                // Prompt the user to enter the Book ID
                 int bookID;
                 std::cout << "Enter Book ID to issue the book: ";
                 std::cin >> bookID;
 
-                // Prompt the user to enter the Member ID
                 int memberId;
                 std::cout << "Enter Member ID to issue the book: ";
                 std::cin >> memberId;
@@ -444,24 +434,20 @@ int main()
 
         case 4:
         {
-            // Calculate fine for a specific member
             const std::vector<Member> &allMembers = librarian.getMembers();
 
             if (!allMembers.empty())
             {
-                // Display available members
                 cout << "Available Members:\n";
                 for (const Member &member : allMembers)
                 {
                     cout << "Member ID: " << member.getMemberID() << ", Name: " << member.getName() << endl;
                 }
 
-                // Prompt user to select a member
                 int selectedMemberID;
                 cout << "Enter Member ID to calculate fine for: ";
                 cin >> selectedMemberID;
 
-                // Find the selected member in the vector
                 auto memberIt = find_if(allMembers.begin(), allMembers.end(), [selectedMemberID](const Member &m)
                                         { return m.getMemberID() == selectedMemberID; });
 
@@ -502,9 +488,9 @@ int main()
         }
 
         cout << "\nPress Enter to continue . . .";
-        cin.ignore();    // Ignore newline character
-        cin.get();       // Wait for Enter key
-        system("clear"); // Clear screen
+        cin.ignore();
+        cin.get();
+        system("clear");
     }
 
     return 0;
