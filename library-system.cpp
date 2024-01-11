@@ -6,7 +6,10 @@
 #include <algorithm>
 #include <iomanip>
 
-//myfirst  commetn
+// myfirst comment
+// testing git because error when push
+// now works well
+
 using namespace std;
 class Date
 {
